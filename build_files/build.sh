@@ -30,7 +30,7 @@ dnf5 -y copr enable che/nerd-fonts
 dnf5 -y install cfonts nerd-fonts
 dnf5 -y copr disable che/nerd-fonts
 
-cat /ctx/flatpax_install >> /usr/share/ublue-os/bazzite/flatpak/install
+cat /ctx/flatpak_install >> /usr/share/ublue-os/bazzite/flatpak/install
 
 /ctx/install-1password.sh
 /ctx/install-chrome.sh
