@@ -10,7 +10,30 @@ set -ouex pipefail
 # https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/39/x86_64/repoview/index.html&protocol=https&redirect=1
 
 # this installs a package from fedora repos
-dnf5 install -y tmux 
+dnf5 install -y \
+  cfonts \
+  direnv \
+  evtest \
+  fd-find \
+  firefox \
+  libguestfs-tools \
+  perf \
+  strace \
+  syncthing \
+  virt-install \
+  virt-manager \
+  virt-viewer \
+  zsh \
+  zsh-syntax-highlighting
+
+dnf5 -y copr enable che/nerd-fonts
+dnf5 -y install cfonts nerd-fonts
+dnf5 -y copr disable che/nerd-fonts
+
+cat /ctx/flatpax_install >> /usr/share/ublue-os/bazzite/flatpak/install
+
+/ctx/install-1password.sh
+/ctx/install-chrome.sh
 
 # Use a COPR Example:
 #
