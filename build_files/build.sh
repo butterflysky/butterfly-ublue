@@ -11,18 +11,76 @@ set -ouex pipefail
 
 # this installs a package from fedora repos
 dnf5 install -y \
+  age \
+  akmod-zfs \
+  ansible \
+  ansible-lint \
+  bcachefs-tools \
+  bpftool \
+  bpftrace \
+  btrbk \
+  buildah \
+  ceph-common \
+  ceph-fuse \
   cfonts \
+  cilium-cli \
+  clevis \
+  clevis-dracut \
+  clevis-luks \
+  cosign \
   direnv \
+  dive \
   evtest \
+  fd \
   fd-find \
   firefox \
+  fluxcd \
+  foot \
+  fzf \
+  grim \
+  helm \
+  hyprland \
+  hyprland-plugins \
+  iproute-tc \
+  iptables-nft \
+  jq \
+  k9s \
+  krew \
+  kubectl \
+  kubectx \
+  kubens \
+  kubeseal \
+  kubetail \
+  kustomize \
   libguestfs-tools \
+  netcat \
+  nftables \
+  nmap \
+  pam_ssh_agent_auth \
   perf \
+  podman-remote \
+  radowsgw-agent \
+  restic \
+  ripgrep \
+  skaffold \
+  slurp \
+  sops \
+  stern \
   strace \
+  swappy \
   syncthing \
+  tilt \
   virt-install \
   virt-manager \
   virt-viewer \
+  waybar \
+  wl-clipboard \
+  wofi \
+  yq \
+  ytt \
+  zfs \
+  zfs-dracut \
+  zoxide \
   zsh \
   zsh-syntax-highlighting
 
@@ -41,7 +99,5 @@ cat /ctx/flatpak_install >> /usr/share/ublue-os/bazzite/flatpak/install
 # dnf5 -y install package
 # Disable COPRs so they don't end up enabled on the final image:
 # dnf5 -y copr disable ublue-os/staging
-
-#### Example for enabling a System Unit File
 
 systemctl enable podman.socket
