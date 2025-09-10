@@ -21,8 +21,19 @@ if dnf5 list --available kmod-zfs >/dev/null 2>&1; then
   dnf5 install -y zfs zfs-dracut kmod-zfs
 else
   # Fallback: DKMS path (works on Bazzite/Kinoite; may require disabling Secure Boot)
-  dnf5 install -y zfs zfs-dracut zfs-dkms linux-devel
+  DNF5_SYSTEMD_DISABLE=1 dnf5 install -y zfs-dkms zfs zfs-dracut kernel-devel kernel-headers
 fi
+
+# ceph
+# directories some packages expect; safe if created early
+mkdir -p /var/lib/ceph /var/log/ceph
+
+# ensure ceph service account exists for ceph-common %scripts
+useradd -r -c "Ceph storage service" -d /var/lib/ceph -M  -s /sbin/nologin ceph
+chown ceph:ceph /var/lib/ceph /var/log/ceph
+
+dnf5 install -y \
+  ceph-common ceph-fuse
 
 # Packages can be installed from any enabled yum repo on the image.
 # RPMfusion repos are available by default in ublue main images
@@ -36,7 +47,6 @@ dnf5 install -y \
   bpftool bpftrace \
   btrbk \
   buildah \
-  ceph-common ceph-fuse \
   cfonts \
   clevis clevis-dracut clevis-luks \
   cosign \
@@ -71,11 +81,13 @@ dnf5 install -y \
   zoxide \
   zsh zsh-syntax-highlighting
 
+if ! rpm -q nerd-fonts >/dev/null 2>&1; then
+  dnf5 -y copr enable che/nerd-fonts
+  dnf5 -y install nerd-fonts
+  dnf5 -y copr disable che/nerd-fonts
+fi
 
-# Temporary COPR: Nerd Fonts (enable → install → disable)
-dnf5 -y copr enable che/nerd-fonts
-dnf5 -y install nerd-fonts
-dnf5 -y copr disable che/nerd-fonts
+rpm -q syslinux-extlinux && dnf5 remove -y syslinux-extlinux syslinux || true
 
 # Flatpaks
 cat /ctx/flatpak_install >> /usr/share/ublue-os/bazzite/flatpak/install
@@ -87,10 +99,11 @@ cat /ctx/flatpak_install >> /usr/share/ublue-os/bazzite/flatpak/install
 # Services
 systemctl enable podman.socket
 
+set +x
 # snapshot after installs
 AFTER_PW=$(mktemp) ; AFTER_GR=$(mktemp)
-getent passwd | sort > "$AFTER_PW"
-getent group  | sort > "$AFTER_GR"
+sh -c "getent passwd" | sort > "$AFTER_PW"
+sh -c "getent group"  | sort > "$AFTER_GR"
 
 # output file baked into the image
 SYSUSERS_OUT="/usr/lib/sysusers.d/99-local-packages.conf"
@@ -139,9 +152,35 @@ while IFS=: read -r uname x uid gid gecos home shell; do
     fi
   fi
 done < "$AFTER_PW"
+set -x
 
 # make result readable in the image
 chmod 0644 "$SYSUSERS_OUT"
 
+cat "$SYSUSERS_OUT"
+
+# Create tmpfiles rules
+cat >/usr/lib/tmpfiles.d/99-local-packages.conf <<'EOF'
+# Ceph
+d /var/lib/ceph 0750 ceph ceph - -
+d /var/log/ceph 0755 ceph ceph - -
+
+# DKMS + ZFS (adjust version if it changes)
+d /var/lib/dkms 0755 root root - -
+d /var/lib/dkms/zfs 0755 root root - -
+d /var/lib/dkms/zfs/2.3.4 0755 root root - -
+L /var/lib/dkms/zfs/2.3.4/source - - - - /usr/src/zfs-2.3.4
+
+# dhcpcd (present in base)
+d /var/lib/dhcpcd 0755 root dhcpcd - -
+
+d /var/lib/dkms/zfs/2.3.4/build 0755 root root - -
+d /var/lib/pcp 0755 root root - -
+d /var/lib/pcp/config 0755 root root - -
+d /var/lib/pcp/config/derived 0755 root root - -
+d /var/lib/rpm-state 0755 root root - -
+EOF
+
+ls -lR /boot
 # cleanup
 rm -f "$BEFORE_PW" "$BEFORE_GR" "$AFTER_PW" "$AFTER_GR"
