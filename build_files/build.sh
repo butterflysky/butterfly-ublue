@@ -90,7 +90,6 @@ dnf5 install -y \
   cosign \
   direnv \
   evtest \
-  fd \
   fd-find \
   firefox \
   foot \
@@ -198,7 +197,7 @@ chmod 0644 "$SYSUSERS_OUT"
 cat "$SYSUSERS_OUT"
 
 # Create tmpfiles rules
-cat >/usr/lib/tmpfiles.d/99-local-packages.conf <<'EOF'
+cat >/usr/lib/tmpfiles.d/99-local-packages.conf <<EOF
 # Ceph
 d /var/lib/ceph 0750 ceph ceph - -
 d /var/log/ceph 0755 ceph ceph - -
@@ -206,13 +205,13 @@ d /var/log/ceph 0755 ceph ceph - -
 # DKMS + ZFS (adjust version if it changes)
 d /var/lib/dkms 0755 root root - -
 d /var/lib/dkms/zfs 0755 root root - -
-d /var/lib/dkms/zfs/2.3.4 0755 root root - -
-L /var/lib/dkms/zfs/2.3.4/source - - - - /usr/src/zfs-2.3.4
+d /var/lib/dkms/zfs/${ZFS_DKMS_VER} 0755 root root - -
+L /var/lib/dkms/zfs/${ZFS_DKMS_VER}/source - - - - /usr/src/zfs-${ZFS_DKMS_VER}
 
 # dhcpcd (present in base)
 d /var/lib/dhcpcd 0755 root dhcpcd - -
 
-d /var/lib/dkms/zfs/2.3.4/build 0755 root root - -
+d /var/lib/dkms/zfs/${ZFS_DKMS_VER}/build 0755 root root - -
 d /var/lib/pcp 0755 root root - -
 d /var/lib/pcp/config 0755 root root - -
 d /var/lib/pcp/config/derived 0755 root root - -
