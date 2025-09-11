@@ -173,7 +173,7 @@ while IFS=: read -r uname x uid gid gecos home shell; do
   [[ -n "${BEFORE_USERS[$uname]:-}" ]] && continue
 
   # heuristics for service accounts
-  if [[ "$uid" -lt 1000 || "$shell" =~ (nologin|false)$ ]]; then
+  if [[ "$uid" -lt 1000 || "$shell" == "/sbin/nologin" || "$shell" == "/bin/false" ]]; then
     # ensure primary group exists in sysusers (by name) if it was added
     gname="${GID2NAME[$gid]}"
     # user line: u name uid:group "GECOS" home shell
