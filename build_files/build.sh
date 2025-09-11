@@ -16,13 +16,37 @@ rpm -q zfs-fuse && dnf5 remove -y zfs-fuse || true
 # OpenZFS repo (required for akmod-zfs/zfs/zfs-dracut)
 rpm -q zfs-release || dnf5 install -y "https://github.com/zfsonlinux/zfsonlinux.github.com/raw/refs/heads/master/fedora/zfs-release-2-8.fc42.noarch.rpm"
 
-# Prefer prebuilt kernel modules if available
-if dnf5 list --available kmod-zfs >/dev/null 2>&1; then
-  dnf5 install -y zfs zfs-dracut kmod-zfs
-else
+# update kernel first
+dnf5 -y install kernel-devel kernel-headers kernel-core
+
+# 0) Figure out the kernel release present in the image
+KREL="$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel-core)"
+
+# 1) Toolchain needed by DKMS (lean set)
+#dnf5 -y install gcc make elfutils-libelf-devel bc dkms
+
+# 2) Install ZFS DKMS + userspace + matching kernel headers, but
+#    suppress scriptlets/triggers so %post doesn't try to compile
   # Fallback: DKMS path (works on Bazzite/Kinoite; may require disabling Secure Boot)
-  DNF5_SYSTEMD_DISABLE=1 dnf5 install -y zfs-dkms zfs zfs-dracut kernel-devel kernel-headers
-fi
+dnf5 -y --setopt=tsflags=noscripts,notriggers install zfs-dkms zfs zfs-dracut
+
+# 3) Work out the DKMS module version (e.g., "2.3.4")
+ZFS_DKMS_VER="$(rpm -q --qf '%{VERSION}\n' zfs-dkms)"
+
+# 4) Ensure the target modules dir exists (on ostree it's under /usr/lib/modules)
+test -d "/usr/lib/modules/${KREL}" || mkdir -p "/usr/lib/modules/${KREL}"
+
+# 5) Add/build/install DKMS for the TARGET kernel (not the host’s uname -r)
+dkms add    -m zfs -v "${ZFS_DKMS_VER}" || true    # idempotent
+dkms build  -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}"
+dkms install -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}" --no-depmod
+
+# 6) Pre-generate module dependency metadata for the target kernel
+#    On ostree/bootc, modules live under /usr/lib/modules; tell depmod where to look.
+depmod -b /usr -a "${KREL}"
+
+# 7) Quick verification (should report the ko we just installed under the target KREL)
+modinfo -k "${KREL}" zfs >/dev/null
 
 # ceph
 # directories some packages expect; safe if created early
@@ -48,7 +72,6 @@ dnf5 install -y \
   btrbk \
   buildah \
   cfonts \
-  clevis clevis-dracut clevis-luks \
   cosign \
   direnv \
   evtest \
