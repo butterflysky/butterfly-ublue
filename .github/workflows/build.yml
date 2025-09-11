@@ -109,6 +109,15 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           oci: false
+          extra-args: |
+            --secret id=dkms_key,src=/run/secrets/DKMS_KEY
+            --secret id=dkms_pin,src=/run/secrets/DKMS_PIN
+            --secret id=dkms_cert,src=/run/secrets/DKMS_CERT
+          secrets: |
+            DKMS_CERT=${{ secrets.DKMS_CERT }}
+            DKMS_KEY=${{ secrets.DKMS_KEY }}
+            DKMS_PIN="${{ secrets.DKMS_PIN }}"
+
 
       # Rechunk is a script that we use on Universal Blue to make sure there isnt a single huge layer when your image gets published.
       # This does not make your image faster to download, just provides better resumability and fixes a few errors.

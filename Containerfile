@@ -13,6 +13,9 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
+    --mount=type=secret,id=dkms_key \
+    --mount=type=secret,id=dkms_pin \
+    --mount=type=secret,id=dkms_cert \
     /ctx/build.sh && \
     ostree container commit
     

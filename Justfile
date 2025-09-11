@@ -94,10 +94,14 @@ build $target_image=image_name $tag=default_tag:
         BUILD_ARGS+=("--build-arg" "SHA_HEAD_SHORT=$(git rev-parse --short HEAD)")
     fi
 
+    # secrets are already imported
     podman build \
         "${BUILD_ARGS[@]}" \
         --pull=newer \
         --tag "${target_image}:${tag}" \
+        --secret id=dkms_key,src=DKMS_KEY,type=env \
+        --secret id=dkms_pin,src=DKMS_PIN,type=env \
+        --secret id=dkms_cert,src=DKMS_CERT,type=env \
         .
 
 # Command: _rootful_load_image

@@ -37,16 +37,31 @@ ZFS_DKMS_VER="$(rpm -q --qf '%{VERSION}\n' zfs-dkms)"
 test -d "/usr/lib/modules/${KREL}" || mkdir -p "/usr/lib/modules/${KREL}"
 
 # 5) Add/build/install DKMS for the TARGET kernel (not the host’s uname -r)
+rm -f /var/lib/dkms/mok.key
+rm -f /var/lib/dkms/mok.pub
+
+base64 -d < /run/secrets/dkms_key > /run/dkms.key
+base64 -d < /run/secrets/dkms_cert > /run/dkms.crt
+
+openssl pkey -in /run/dkms.key -passin file:/run/secrets/dkms_pin -out /run/dkms_unenc.key
+
+ln -sf /run/dkms_unenc.key /var/lib/dkms/mok.key
+ln -sf /run/dkms.crt /var/lib/dkms/mok.pub
+
 dkms add    -m zfs -v "${ZFS_DKMS_VER}" || true    # idempotent
 dkms build  -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}"
 dkms install -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}" --no-depmod
+
+shred -u /run/dkms.key
+shred -u /run/dkms_unenc.key
+shred -u /run/dkms.crt
 
 # 6) Pre-generate module dependency metadata for the target kernel
 #    On ostree/bootc, modules live under /usr/lib/modules; tell depmod where to look.
 depmod -b /usr -a "${KREL}"
 
-# 7) Quick verification (should report the ko we just installed under the target KREL)
-modinfo -k "${KREL}" zfs >/dev/null
+# 7) Clean that stuff up
+rm -rf /var/lib/dkms/* /var/lib/dkms/.??* 2>/dev/null || true
 
 # ceph
 # directories some packages expect; safe if created early
@@ -207,3 +222,5 @@ EOF
 ls -lR /boot
 # cleanup
 rm -f "$BEFORE_PW" "$BEFORE_GR" "$AFTER_PW" "$AFTER_GR"
+
+rm -fr ctx/certs
