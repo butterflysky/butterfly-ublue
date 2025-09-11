@@ -100,6 +100,10 @@ jobs:
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
+        secrets: |
+          DKMS_CERT=${{ secrets.DKMS_CERT }}
+          DKMS_KEY=${{ secrets.DKMS_KEY }}
+          DKMS_PIN="${{ secrets.DKMS_PIN }}"
         with:
           containerfiles: |
             ./Containerfile
@@ -113,10 +117,6 @@ jobs:
             --secret id=dkms_key,src=/run/secrets/DKMS_KEY
             --secret id=dkms_pin,src=/run/secrets/DKMS_PIN
             --secret id=dkms_cert,src=/run/secrets/DKMS_CERT
-          secrets: |
-            DKMS_CERT=${{ secrets.DKMS_CERT }}
-            DKMS_KEY=${{ secrets.DKMS_KEY }}
-            DKMS_PIN="${{ secrets.DKMS_PIN }}"
 
 
       # Rechunk is a script that we use on Universal Blue to make sure there isnt a single huge layer when your image gets published.
