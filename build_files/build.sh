@@ -139,8 +139,8 @@ systemctl enable podman.socket
 set +x
 # snapshot after installs
 AFTER_PW=$(mktemp) ; AFTER_GR=$(mktemp)
-sh -c "getent passwd" | sort > "$AFTER_PW"
-sh -c "getent group"  | sort > "$AFTER_GR"
+getent passwd | sort > "$AFTER_PW"
+getent group  | sort > "$AFTER_GR"
 
 # output file baked into the image
 SYSUSERS_OUT="/usr/lib/sysusers.d/99-local-packages.conf"
