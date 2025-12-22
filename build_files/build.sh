@@ -14,7 +14,7 @@ getent group  | sort > "$BEFORE_GR"
 rpm -q zfs-fuse && dnf5 remove -y zfs-fuse || true
 
 # OpenZFS repo (required for akmod-zfs/zfs/zfs-dracut)
-rpm -q zfs-release || dnf5 install -y "https://github.com/zfsonlinux/zfsonlinux.github.com/raw/refs/heads/master/fedora/zfs-release-2-8.fc42.noarch.rpm"
+rpm -q zfs-release || dnf5 install -y "https://github.com/zfsonlinux/zfsonlinux.github.com/raw/refs/heads/master/fedora/zfs-release-3-0.fc43.noarch.rpm"
 
 # update kernel first
 dnf5 -y install kernel-devel kernel-headers kernel-core
