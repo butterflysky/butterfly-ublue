@@ -7,6 +7,13 @@ BEFORE_PW=$(mktemp) ; BEFORE_GR=$(mktemp)
 getent passwd | sort > "$BEFORE_PW"
 getent group  | sort > "$BEFORE_GR"
 
+### Add some repos
+
+# 1. Install the Cisco OpenH264 repo definition
+# This adds /etc/yum.repos.d/fedora-cisco-openh264.repo
+dnf5 install -y fedora-cisco-openh264
+dnf5 copr enable lionheartp/Hyprland 
+
 ### Install packages
 
 ### Repos / prelim
