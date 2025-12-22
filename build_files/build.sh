@@ -10,11 +10,12 @@ getent group  | sort > "$BEFORE_GR"
 ### Install packages
 
 ### Repos / prelim
-# Remove wrong ZFS if present (you don't want zfs-fuse on this image)
-rpm -q zfs-fuse && dnf5 remove -y zfs-fuse || true
+# stripping ZFS support for now
+## # Remove wrong ZFS if present (you don't want zfs-fuse on this image)
+## rpm -q zfs-fuse && dnf5 remove -y zfs-fuse || true
 
-# OpenZFS repo (required for akmod-zfs/zfs/zfs-dracut)
-rpm -q zfs-release || dnf5 install -y "https://github.com/zfsonlinux/zfsonlinux.github.com/raw/refs/heads/master/fedora/zfs-release-3-0.fc43.noarch.rpm"
+## # OpenZFS repo (required for akmod-zfs/zfs/zfs-dracut)
+## rpm -q zfs-release || dnf5 install -y "https://github.com/zfsonlinux/zfsonlinux.github.com/raw/refs/heads/master/fedora/zfs-release-3-0.fc43.noarch.rpm"
 
 # update kernel first
 dnf5 -y install kernel-devel kernel-headers kernel-core
@@ -22,19 +23,19 @@ dnf5 -y install kernel-devel kernel-headers kernel-core
 # 0) Figure out the kernel release present in the image
 KREL="$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel-core)"
 
-# 1) Toolchain needed by DKMS (lean set)
-#dnf5 -y install gcc make elfutils-libelf-devel bc dkms
+## # 1) Toolchain needed by DKMS (lean set)
+## #dnf5 -y install gcc make elfutils-libelf-devel bc dkms
 
-# 2) Install ZFS DKMS + userspace + matching kernel headers, but
-#    suppress scriptlets/triggers so %post doesn't try to compile
+## # 2) Install ZFS DKMS + userspace + matching kernel headers, but
+## #    suppress scriptlets/triggers so %post doesn't try to compile
   # Fallback: DKMS path (works on Bazzite/Kinoite; may require disabling Secure Boot)
-dnf5 -y --setopt=tsflags=noscripts,notriggers install zfs-dkms zfs zfs-dracut
+## dnf5 -y --setopt=tsflags=noscripts,notriggers install zfs-dkms zfs zfs-dracut
 
-# 3) Work out the DKMS module version (e.g., "2.3.4")
-ZFS_DKMS_VER="$(rpm -q --qf '%{VERSION}\n' zfs-dkms)"
+## # 3) Work out the DKMS module version (e.g., "2.3.4")
+## ZFS_DKMS_VER="$(rpm -q --qf '%{VERSION}\n' zfs-dkms)"
 
-# 4) Ensure the target modules dir exists (on ostree it's under /usr/lib/modules)
-test -d "/usr/lib/modules/${KREL}" || mkdir -p "/usr/lib/modules/${KREL}"
+## # 4) Ensure the target modules dir exists (on ostree it's under /usr/lib/modules)
+## test -d "/usr/lib/modules/${KREL}" || mkdir -p "/usr/lib/modules/${KREL}"
 
 # 5) Add/build/install DKMS for the TARGET kernel (not the host’s uname -r)
 rm -f /var/lib/dkms/mok.key
@@ -48,9 +49,9 @@ openssl pkey -in /run/dkms.key -passin file:/run/secrets/dkms_pin -out /run/dkms
 ln -sf /run/dkms_unenc.key /var/lib/dkms/mok.key
 ln -sf /run/dkms.crt /var/lib/dkms/mok.pub
 
-dkms add    -m zfs -v "${ZFS_DKMS_VER}" || true    # idempotent
-dkms build  -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}"
-dkms install -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}" --no-depmod
+## dkms add    -m zfs -v "${ZFS_DKMS_VER}" || true    # idempotent
+## dkms build  -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}"
+## dkms install -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}" --no-depmod
 
 shred -u /run/dkms.key
 shred -u /run/dkms_unenc.key
@@ -134,6 +135,7 @@ cat /ctx/flatpak_install >> /usr/share/ublue-os/bazzite/flatpak/install
 # Extras (your scripts)
 /ctx/install-1password.sh
 /ctx/install-chrome.sh
+/ctx/configure-xdg-portal.sh
 
 # Services
 systemctl enable podman.socket
@@ -198,51 +200,22 @@ chmod 0644 "$SYSUSERS_OUT"
 
 cat "$SYSUSERS_OUT"
 
-# xdg-portal-configs
-
-echo "Configuring XDG Portals..."
-mkdir -p /etc/xdg-desktop-portal
-cat >/etc/xdg-desktop-portal/portals.conf <<EOF
-[Hyprland]
-default=hyprland;gtk
-org.freedesktop.impl.portal.Secret=gnome-keyring
-
-[KDE]
-default=kde
-EOF
-
-# PREVENT GNOME KEYRING FROM STARTING IN KDE
-# We add "NotShowIn=KDE;" to the gnome-keyring autostart files.
-# This ensures it only runs when we explicitly ask for it (Hyprland)
-# or in GTK environments, but keeps your Plasma session pure.
-
-echo "Patching Gnome Keyring autostart..."
-find /usr/etc/xdg/autostart -name "gnome-keyring*.desktop" -exec \
-    sed -i '/^OnlyShowIn=/d; $a NotShowIn=KDE;' {} +
-
-# Note: In uBlue/Silverblue, /etc/xdg might be a symlink or empty,
-# and the actual files are often in /usr/etc/xdg or /usr/share/applications.
-# We try /usr/etc/xdg/autostart first as that is the OSTree standard location.
-# If your distro puts them in /usr/share, duplicate the line for that path:
-find /usr/share/applications -name "gnome-keyring*.desktop" -exec \
-    sed -i '/^OnlyShowIn=/d; $a NotShowIn=KDE;' {} +
-
 # Create tmpfiles rules
 cat >/usr/lib/tmpfiles.d/99-local-packages.conf <<EOF
 # Ceph
 d /var/lib/ceph 0750 ceph ceph - -
 d /var/log/ceph 0755 ceph ceph - -
 
-# DKMS + ZFS (adjust version if it changes)
-d /var/lib/dkms 0755 root root - -
-d /var/lib/dkms/zfs 0755 root root - -
-d /var/lib/dkms/zfs/${ZFS_DKMS_VER} 0755 root root - -
-L /var/lib/dkms/zfs/${ZFS_DKMS_VER}/source - - - - /usr/src/zfs-${ZFS_DKMS_VER}
+## # DKMS + ZFS (adjust version if it changes)
+## d /var/lib/dkms 0755 root root - -
+## d /var/lib/dkms/zfs 0755 root root - -
+## d /var/lib/dkms/zfs/${ZFS_DKMS_VER} 0755 root root - -
+## L /var/lib/dkms/zfs/${ZFS_DKMS_VER}/source - - - - /usr/src/zfs-${ZFS_DKMS_VER}
+## d /var/lib/dkms/zfs/${ZFS_DKMS_VER}/build 0755 root root - -
 
 # dhcpcd (present in base)
 d /var/lib/dhcpcd 0755 root dhcpcd - -
 
-d /var/lib/dkms/zfs/${ZFS_DKMS_VER}/build 0755 root root - -
 d /var/lib/pcp 0755 root root - -
 d /var/lib/pcp/config 0755 root root - -
 d /var/lib/pcp/config/derived 0755 root root - -
