@@ -18,7 +18,7 @@ getent group  | sort > "$BEFORE_GR"
 ## rpm -q zfs-release || dnf5 install -y "https://github.com/zfsonlinux/zfsonlinux.github.com/raw/refs/heads/master/fedora/zfs-release-3-0.fc43.noarch.rpm"
 
 # update kernel first
-dnf5 -y install kernel-devel kernel-headers kernel-core
+## dnf5 -y install kernel-devel kernel-headers kernel-core
 
 # 0) Figure out the kernel release present in the image
 KREL="$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel-core)"
@@ -38,31 +38,31 @@ KREL="$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel-core)"
 ## test -d "/usr/lib/modules/${KREL}" || mkdir -p "/usr/lib/modules/${KREL}"
 
 # 5) Add/build/install DKMS for the TARGET kernel (not the host’s uname -r)
-rm -f /var/lib/dkms/mok.key
-rm -f /var/lib/dkms/mok.pub
+## rm -f /var/lib/dkms/mok.key
+## rm -f /var/lib/dkms/mok.pub
 
-base64 -d < /run/secrets/dkms_key > /run/dkms.key
-base64 -d < /run/secrets/dkms_cert > /run/dkms.crt
+## base64 -d < /run/secrets/dkms_key > /run/dkms.key
+## base64 -d < /run/secrets/dkms_cert > /run/dkms.crt
 
-openssl pkey -in /run/dkms.key -passin file:/run/secrets/dkms_pin -out /run/dkms_unenc.key
+## openssl pkey -in /run/dkms.key -passin file:/run/secrets/dkms_pin -out /run/dkms_unenc.key
 
-ln -sf /run/dkms_unenc.key /var/lib/dkms/mok.key
-ln -sf /run/dkms.crt /var/lib/dkms/mok.pub
+## ln -sf /run/dkms_unenc.key /var/lib/dkms/mok.key
+## ln -sf /run/dkms.crt /var/lib/dkms/mok.pub
 
 ## dkms add    -m zfs -v "${ZFS_DKMS_VER}" || true    # idempotent
 ## dkms build  -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}"
 ## dkms install -m zfs -v "${ZFS_DKMS_VER}" -k "${KREL}" --no-depmod
 
-shred -u /run/dkms.key
-shred -u /run/dkms_unenc.key
-shred -u /run/dkms.crt
+## shred -u /run/dkms.key
+## shred -u /run/dkms_unenc.key
+## shred -u /run/dkms.crt
 
 # 6) Pre-generate module dependency metadata for the target kernel
 #    On ostree/bootc, modules live under /usr/lib/modules; tell depmod where to look.
-depmod -b /usr -a "${KREL}"
+## depmod -b /usr -a "${KREL}"
 
 # 7) Clean that stuff up
-rm -rf /var/lib/dkms/* /var/lib/dkms/.??* 2>/dev/null || true
+## rm -rf /var/lib/dkms/* /var/lib/dkms/.??* 2>/dev/null || true
 
 # ceph
 # directories some packages expect; safe if created early
