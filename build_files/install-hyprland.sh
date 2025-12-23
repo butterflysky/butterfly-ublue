@@ -4,6 +4,7 @@ set -ouex pipefail
 
 ### Add some repos
 dnf5 -y copr enable lionheartp/Hyprland 
+dnf5 -y copr enable erikreider/SwayNotificationCenter
 
 dnf5 install -y \
   aquamarine \
@@ -27,8 +28,8 @@ dnf5 install -y \
   hyprtoolkit \
   hyprutils \
   hyprwayland-scanner \
-  mako \
   seahorse \
+  SwayNotificationCenter \
   xdg-desktop-portal-hyprland \
   waybar wl-clipboard wofi
 
@@ -38,3 +39,4 @@ dnf5 install -y \
   #hyprtile \
 
 dnf5 -y copr disable lionheartp/Hyprland
+dnf5 -y copr disable erikreider/SwayNotificationCenter
