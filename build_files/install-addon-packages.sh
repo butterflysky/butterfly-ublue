@@ -3,7 +3,7 @@
 set -ouex pipefail
 
 ### Add some repos
-dnf5 copr enable lionheartp/Hyprland 
+dnf5 -y copr enable lionheartp/Hyprland 
 
 dnf5 install -y \
   age \
@@ -44,6 +44,8 @@ dnf5 install -y \
   waybar wl-clipboard wofi \
   zoxide \
   zsh zsh-syntax-highlighting
+
+dnf5 -y copr disable lionheartp/Hyprland
 
 if ! rpm -q nerd-fonts >/dev/null 2>&1; then
   dnf5 -y copr enable che/nerd-fonts
