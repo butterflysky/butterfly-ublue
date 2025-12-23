@@ -1,3 +1,5 @@
+set -ouex pipefail
+
 # --- BUILD OPENH264 FROM SOURCE (F43) ---
 echo "Building OpenH264 from source..."
 
