@@ -9,9 +9,6 @@ getent group  | sort > "$BEFORE_GR"
 
 ### Add some repos
 
-# 1. Install the Cisco OpenH264 repo definition
-# This adds /etc/yum.repos.d/fedora-cisco-openh264.repo
-dnf5 install -y fedora-cisco-openh264
 dnf5 copr enable lionheartp/Hyprland 
 
 ### Install packages
@@ -99,7 +96,6 @@ dnf5 install -y \
   direnv \
   evtest \
   fd-find \
-  firefox \
   foot \
   fzf \
   gnome-keyring \
@@ -140,6 +136,7 @@ rpm -q syslinux-extlinux && dnf5 remove -y syslinux-extlinux syslinux || true
 cat /ctx/flatpak_install >> /usr/share/ublue-os/bazzite/flatpak/install
 
 # Extras (your scripts)
+/ctx/install-openh264-and-firefox.sh
 /ctx/install-1password.sh
 /ctx/install-chrome.sh
 /ctx/configure-xdg-portal.sh
