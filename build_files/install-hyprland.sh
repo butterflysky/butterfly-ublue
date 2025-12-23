@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -ouex pipefail
+
+### Add some repos
+dnf5 -y copr enable lionheartp/Hyprland 
+
+dnf5 install -y \
+  aquamarine \
+  gnome-keyring \
+  hyprcursor \
+  hyprgraphics \
+  hypridle \
+  hyprland \
+  hyprland-guiutils \
+  hyprland-qt-support \
+  hyprlang \
+  hyprlock \
+  hyprpaper \
+  hyprpicker \
+  hyprpolkitagent \
+  hyprpwcenter \
+  hyprqt6engine \
+  hyprshutdown \
+  hyprsunset \
+  hyprsysteminfo \
+  hyprtoolkit \
+  hyprutils \
+  hyprwayland-scanner \
+  mako \
+  seahorse \
+  xdg-desktop-portal-hyprland \
+  waybar wl-clipboard wofi
+
+# these 3 aren't in the copr repo
+  #clipvault \
+  #hyprlauncher \
+  #hyprtile \
+
+dnf5 -y copr disable lionheartp/Hyprland
