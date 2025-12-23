@@ -19,7 +19,7 @@ rm -rf "$TEMP_CLONE"
 
 # 4. Download sources
 # Point spectool to our custom /var/tmp directories
-spectool -g -R "$RPM_ROOT/SPECS/openh264.spec" -C "$RPM_ROOT/SOURCES/"
+spectool -g -C "$RPM_ROOT/SOURCES/" "$RPM_ROOT/SPECS/openh264.spec"
 
 # 5. Install build dependencies
 dnf5 builddep -y "$RPM_ROOT/SPECS/openh264.spec"
