@@ -7,7 +7,6 @@ dnf5 -y copr enable lionheartp/Hyprland
 
 dnf5 install -y \
   aquamarine \
-  clipvault \
   gnome-keyring \
   hyprcursor \
   hyprgraphics \
@@ -16,7 +15,6 @@ dnf5 install -y \
   hyprland-guiutils \
   hyprland-qt-support \
   hyprlang \
-  hyprlauncher \
   hyprlock \
   hyprpaper \
   hyprpicker \
@@ -26,7 +24,6 @@ dnf5 install -y \
   hyprshutdown \
   hyprsunset \
   hyprsysteminfo \
-  hyprtile \
   hyprtoolkit \
   hyprutils \
   hyprwayland-scanner \
@@ -35,20 +32,9 @@ dnf5 install -y \
   xdg-desktop-portal-hyprland \
   waybar wl-clipboard wofi
 
+# these 3 aren't in the copr repo
+  #clipvault \
+  #hyprlauncher \
+  #hyprtile \
+
 dnf5 -y copr disable lionheartp/Hyprland
-
-if ! rpm -q nerd-fonts >/dev/null 2>&1; then
-  dnf5 -y copr enable che/nerd-fonts
-  dnf5 -y install nerd-fonts
-  dnf5 -y copr disable che/nerd-fonts
-fi
-
-# don't want syslinux-extlinux
-rpm -q syslinux-extlinux && dnf5 remove -y syslinux-extlinux syslinux || true
-
-# Flatpaks
-cat /ctx/flatpak_install >> /usr/share/ublue-os/bazzite/flatpak/install
-
-# Services
-# - podman provides support for distroboxes
-systemctl enable podman.socket
