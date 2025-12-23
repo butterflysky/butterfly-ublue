@@ -33,7 +33,7 @@ dnf5 builddep -y "$RPM_ROOT/SPECS/openh264.spec"
 rpmbuild -bb "$RPM_ROOT/SPECS/openh264.spec" --define "_topdir $RPM_ROOT"
 
 # 8. Install the result
-dnf5 install -y "$RPM_ROOT/RPMS/x86_64/"*.rpm
+dnf5 install -y --allowerasing "$RPM_ROOT/RPMS/x86_64/"*.rpm
 
 # Cleanup
 rm -rf "$RPM_ROOT"
