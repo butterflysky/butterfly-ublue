@@ -7,6 +7,7 @@ function install-system() {
 
     /ctx/install-zfs.sh
     /ctx/install-ceph.sh
+    /ctx/install-hyprland.sh
     /ctx/install-addon-packages.sh
     /ctx/install-openh264-and-firefox.sh
     /ctx/install-1password.sh

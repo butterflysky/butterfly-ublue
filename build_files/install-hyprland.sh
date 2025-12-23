@@ -6,40 +6,34 @@ set -ouex pipefail
 dnf5 -y copr enable lionheartp/Hyprland 
 
 dnf5 install -y \
-  age \
-  ansible ansible-lint \
-  bcachefs-tools \
-  bpftool bpftrace \
-  btrbk \
-  buildah \
-  cfonts \
-  cosign \
-  direnv \
-  evtest \
-  fd-find \
-  foot \
-  fzf \
-  grim \
-  helm \
-  xorg-x11-server-Xwayland qt5-qtwayland qt6-qtwayland \
-  iproute-tc iptables-nft nftables \
-  jq yq \
-  k9s \
-  kubectl \
-  kustomize \
-  libguestfs-tools \
-  netcat nmap \
-  perf \
-  podman-remote \
-  restic \
-  ripgrep \
-  slurp \
-  strace \
-  swappy \
-  tilt \
-  virt-install virt-manager virt-viewer \
-  zoxide \
-  zsh zsh-syntax-highlighting
+  aquamarine \
+  clipvault \
+  gnome-keyring \
+  hyprcursor \
+  hyprgraphics \
+  hypridle \
+  hyprland \
+  hyprland-guiutils \
+  hyprland-qt-support \
+  hyprlang \
+  hyprlauncher \
+  hyprlock \
+  hyprpaper \
+  hyprpicker \
+  hyprpolkitagent \
+  hyprpwcenter \
+  hyprqt6engine \
+  hyprshutdown \
+  hyprsunset \
+  hyprsysteminfo \
+  hyprtile \
+  hyprtoolkit \
+  hyprutils \
+  hyprwayland-scanner \
+  mako \
+  seahorse \
+  xdg-desktop-portal-hyprland \
+  waybar wl-clipboard wofi
 
 dnf5 -y copr disable lionheartp/Hyprland
 
