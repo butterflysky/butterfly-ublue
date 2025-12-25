@@ -9,6 +9,7 @@ dnf5 -y copr enable erikreider/SwayNotificationCenter
 dnf5 install -y \
   aquamarine \
   gnome-keyring \
+  fuzzel \
   hyprcursor \
   hyprgraphics \
   hypridle \
