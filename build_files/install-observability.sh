@@ -18,11 +18,8 @@ sslcacert=/etc/pki/tls/certs/ca-bundle.crt
 EOF
 
 # 2. Install packages
-# node_exporter is in the standard Fedora repos
 # alloy is from the Grafana repo
-rpm-ostree install \
-    prometheus-node-exporter \
-    alloy
+rpm-ostree install alloy
 
 # 3. Clean up repo (updates handled by image builds)
 rm /etc/yum.repos.d/grafana.repo
