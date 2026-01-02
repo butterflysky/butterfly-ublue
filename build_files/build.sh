@@ -12,6 +12,7 @@ function install-system() {
     /ctx/install-openh264-and-firefox.sh
     /ctx/install-1password.sh
     /ctx/install-chrome.sh
+    /ctx/install-observability.sh
     /ctx/configure-xdg-portal.sh
 }
 
