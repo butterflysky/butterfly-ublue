@@ -38,6 +38,7 @@ dnf5 install -y \
   swappy \
   tilt \
   virt-install virt-manager virt-viewer \
+  v4l-utils \
   zoxide \
   zsh zsh-syntax-highlighting
 
