@@ -14,6 +14,7 @@ function install-system() {
     /ctx/install-chrome.sh
     /ctx/install-observability.sh
     /ctx/configure-xdg-portal.sh
+    /ctx/configure-signing-policy.sh
 }
 
 set +x
